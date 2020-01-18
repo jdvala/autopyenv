@@ -14,7 +14,7 @@ var exec = require("child_process").exec,
 let folderName = null;
 let exactPath = null;
 let defaultShell = null;
-let dotVscodeFolder = null;
+let configFolderPath = null;
 let configFolder = null;
 
 
@@ -26,62 +26,75 @@ function activate(context) {
   // This line of code will only be executed once when your extension is activated
   configFolder = vscode.workspace.getConfiguration('autopyenv').get("configfolder");
 
-  // Check if user wants to create an environment
-  vscode.window
-    .showInformationMessage('Do you want to create a python virtual environment in your .vscode folder?', ...['YES', 'NO'])
-    .then(selection => {
-      if (selection === "YES") {
-        // check if we are in a workspace
+  if (vscode.workspace) {
+    exactPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+    folderName = exactPath.split(path.sep)[
+      exactPath.split(path.sep).length - 1
+    ];
 
-        if (vscode.workspace) {
-          exactPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
-          folderName = exactPath.split(path.sep)[
-            exactPath.split(path.sep).length - 1
-          ];
+    vscode.window.showInformationMessage(`Found Workspace ${folderName}`);
+  } else {
+    vscode.window.showErrorMessage("No Workspace found, no folder open");
+  }
 
-          vscode.window.showInformationMessage(`Found Workspace ${folderName}`);
-        } else {
-          vscode.window.showErrorMessage("No Workspace found, no folder open");
-        }
-
-        // if we found foldername then start using the shell commands
-        if (folderName) {
-          //check for .vscode folder
-          dotVscodeFolder = path.join(exactPath, ".vscode");
-          if (fs.existsSync(dotVscodeFolder)) {
-            // create a terminal with name as foldername+Environment
-            createEnvironment()
-
-          } else {
-            vscode.window.showInformationMessage("No .vscode folder found, creating .vscode folder");
-            // create a vscode folder
-            fs.mkdirSync(dotVscodeFolder)
-
-            // create the environment
-            createEnvironment()
+  // if we found foldername then start using the shell commands
+  if (folderName) {
+    //check for environment inside configfolder folder
+    configFolderPath = path.join(exactPath, configFolder);
+    if (fs.existsSync(configFolderPath)) {
+      // check if environment is present
+      let existEnvPath = path.join(configFolderPath, `${folderName}`, "bin", "activate");
+      if (existEnvPath) {
+        // Just activate the environment
+        vscode.window.showInformationMessage("Environment already exist, Do you want to activate it?", ...["Yes", "No"]).then(selection => {
+          if (selection === "Yes") {
+            activateEnv()
           }
-        }
+          else {
+            vscode.window.showInformationMessage(`Environment ${folderName} not activated`)
+          }
+        });
+
+      } else {
+        vscode.window.showInformationMessage(`${configFolder} folder exists but no environment, do you want to create environment in ${configFolder} folder?`, ...["Yes", "No"])
+          .then(selection => {
+            if (selection === "Yes") {
+              // create a terminal with name as foldername+Environment
+              createEnvironment()
+            }
+          });
       }
-      else {
-        vscode.window.showInformationMessage("No environment created, thanks for using autopyenv")
-      }
-    });
+    } else {
+      vscode.window.showInformationMessage(`No ${configFolder} folder found, creating ${configFolder} folder`);
+      // create a vscode folder
+      fs.mkdirSync(configFolderPath)
+
+      // create the environment
+      createEnvironment()
+    }
+  }
 }
+
 exports.activate = activate;
 
+// method to activate the new env if exist
+const activateEnv = () => {
+  //create a new terminal session
+  defaultShell = vscode.window.createTerminal(`${folderName} Environment`);
 
+  let envPath = path.join(`${configFolderPath}`, `${folderName}`, "bin", "activate")
+  defaultShell.sendText(`source ${envPath}`);
+}
+
+// method to create and activate new environment
 const createEnvironment = () => {
   defaultShell = vscode.window.createTerminal(
     `${folderName} Environment`
   );
-
-  // ask user if they want to create a new environment in the .vscode folder 
-
-
   // send text to the terminal with the command to create the virtual environment
-  let newEnvPath = path.join(`${dotVscodeFolder}`, `${folderName}`)
+  let newEnvPath = path.join(`${configFolderPath}`, `${folderName}`)
   defaultShell.sendText(`python3 -m venv ${newEnvPath}`);
-  vscode.window.showInformationMessage("Created python3 virtual environment in .vscode folder");
+  vscode.window.showInformationMessage(`Created python3 virtual environment in ${configFolder} folder`);
 
   // create the activate path
   let activationPath = path.join(`${newEnvPath}`, "bin", "activate");
