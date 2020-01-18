@@ -46,18 +46,18 @@ function activate(context) {
         // if we found foldername then start using the shell commands
         if (folderName) {
           //check for .vscode folder
-          let dotVscodeFolder = path.join(exactPath, ".vscode");
+          dotVscodeFolder = path.join(exactPath, ".vscode");
           if (fs.existsSync(dotVscodeFolder)) {
             // create a terminal with name as foldername+Environment
-            create_environment()
+            createEnvironment()
             
           } else {
-            vscode.window.showErrorMessage("No .vscode folder found, creating .vscode folder");
+            vscode.window.showInformationMessage("No .vscode folder found, creating .vscode folder");
             // create a vscode folder
-            fs.mkdirSync(".vscode")
+            fs.mkdirSync(dotVscodeFolder)
 
             // create the environment
-            create_environment()
+            createEnvironment()
           }
         }
       }
@@ -69,7 +69,7 @@ function activate(context) {
 exports.activate = activate;
 
 
-const create_environment = () => {
+const createEnvironment = () => {
   defaultShell = vscode.window.createTerminal(
     `${folderName} Environment`
   );
@@ -78,11 +78,12 @@ const create_environment = () => {
 
 
   // send text to the terminal with the command to create the virtual environment
-  defaultShell.sendText(`python3 -m venv ${dotVscodeFolder}`);
+  let newEnvPath = path.join(`${dotVscodeFolder}`, `${folderName}`)
+  defaultShell.sendText(`python3 -m venv ${newEnvPath}`);
   vscode.window.showInformationMessage("Created python3 virtual environment in .vscode folder");
 
   // create the activate path
-  let activationPath = path.join(`${dotVscodeFolder}`, "bin", "activate");
+  let activationPath = path.join(`${newEnvPath}`, "bin", "activate");
 
   defaultShell.sendText(`source ${activationPath}`);
 }
