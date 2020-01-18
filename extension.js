@@ -52,9 +52,20 @@ function activate(context) {
           defaultShell = vscode.window.createTerminal(
             `${folderName} Environment`
           );
+
+          // ask user if they want to create a new environment in the .vscode folder 
+          
+          
+          // send text to the terminal with the command to create the virtual environment
           defaultShell.sendText(`python3 -m venv ${dotVscodeFolder}`);
-          //if defaultShell
-          console.log(`${defaultShell}`);
+          vscode.window.showInformationMessage("Created python3 virtual environment in .vscode folder");
+          
+          // create the activate path
+          let activationPath = path.join(`${dotVscodeFolder}`, "bin", "activate");
+
+          defaultShell.sendText(`source ${activationPath}`);
+
+          
         } else {
           vscode.window.showErrorMessage(".vscode folder not found");
         }
