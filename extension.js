@@ -16,69 +16,55 @@ var exec = require("child_process").exec,
 function activate(context) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "autopyenv" is now active!');
+  vscode.window.showInformationMessage('Congratulations, your extension "autopyenv" is now active!');
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with  registerCommand
-  // The commandId parameter must match the command field in package.json
-  let disposable = vscode.commands.registerCommand(
-    "extension.autopyenv",
-    function() {
-      // The code you place here will be executed every time your command is executed
-      // OUR CODE HERE
-      // Display a message box to the user
+  // check if we are in a workspace
+  let folderName = null;
+  let exactPath = null;
+  if (vscode.workspace) {
+    exactPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+    folderName = exactPath.split(path.sep)[
+      exactPath.split(path.sep).length - 1
+    ];
 
-      // check if we are in a workspace
-      let folderName = null;
-      let exactPath = null;
-      if (vscode.workspace) {
-        exactPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
-        folderName = exactPath.split(path.sep)[
-          exactPath.split(path.sep).length - 1
-        ];
+    vscode.window.showInformationMessage(`Found Workspace ${folderName}`);
+  } else {
+    vscode.window.showErrorMessage("No Workspace found, no folder open");
+  }
 
-        vscode.window.showInformationMessage(`Found Workspace ${folderName}`);
-      } else {
-        vscode.window.showErrorMessage("No Workspace found, no folder open");
-      }
+  // if we found foldername then start using the shell commands
+  let defaultShell = null;
+  if (folderName) {
+    //check for .vscode folder
+    let dotVscodeFolder = path.join(exactPath, ".vscode");
+    if (fs.existsSync(dotVscodeFolder)) {
+      // create a terminal with name as foldername+Environment
+      defaultShell = vscode.window.createTerminal(
+        `${folderName} Environment`
+      );
 
-      // if we found foldername then start using the shell commands
-      let defaultShell = null;
-      if (folderName) {
-        //check for .vscode folder
-        let dotVscodeFolder = path.join(exactPath, ".vscode");
-        if (fs.existsSync(dotVscodeFolder)) {
-          // create a terminal with name as foldername+Environment
-          defaultShell = vscode.window.createTerminal(
-            `${folderName} Environment`
-          );
+      // ask user if they want to create a new environment in the .vscode folder 
 
-          // ask user if they want to create a new environment in the .vscode folder 
-          
-          
-          // send text to the terminal with the command to create the virtual environment
-          defaultShell.sendText(`python3 -m venv ${dotVscodeFolder}`);
-          vscode.window.showInformationMessage("Created python3 virtual environment in .vscode folder");
-          
-          // create the activate path
-          let activationPath = path.join(`${dotVscodeFolder}`, "bin", "activate");
 
-          defaultShell.sendText(`source ${activationPath}`);
+      // send text to the terminal with the command to create the virtual environment
+      defaultShell.sendText(`python3 -m venv ${dotVscodeFolder}`);
+      vscode.window.showInformationMessage("Created python3 virtual environment in .vscode folder");
 
-          
-        } else {
-          vscode.window.showErrorMessage(".vscode folder not found");
-        }
-      }
+      // create the activate path
+      let activationPath = path.join(`${dotVscodeFolder}`, "bin", "activate");
+
+      defaultShell.sendText(`source ${activationPath}`);
+
+
+    } else {
+      vscode.window.showErrorMessage(".vscode folder not found");
     }
-  );
-
-  context.subscriptions.push(disposable);
+  }
 }
 exports.activate = activate;
 
 // this method is called when your extension is deactivated
-function deactivate() {}
+function deactivate() { }
 
 module.exports = {
   activate,

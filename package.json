@@ -10,7 +10,7 @@
     "Other"
   ],
   "activationEvents": [
-    "*"
+    "workspaceContains:.vscode"
   ],
   "main": "./extension.js",
   "contributes": {
