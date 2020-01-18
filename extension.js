@@ -15,6 +15,7 @@ let folderName = null;
 let exactPath = null;
 let defaultShell = null;
 let dotVscodeFolder = null;
+let configFolder = null;
 
 
 /**
@@ -23,7 +24,7 @@ let dotVscodeFolder = null;
 function activate(context) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
-
+  configFolder = vscode.workspace.getConfiguration('autopyenv').get("configfolder");
 
   // Check if user wants to create an environment
   vscode.window
@@ -31,7 +32,7 @@ function activate(context) {
     .then(selection => {
       if (selection === "YES") {
         // check if we are in a workspace
-        
+
         if (vscode.workspace) {
           exactPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
           folderName = exactPath.split(path.sep)[
@@ -50,7 +51,7 @@ function activate(context) {
           if (fs.existsSync(dotVscodeFolder)) {
             // create a terminal with name as foldername+Environment
             createEnvironment()
-            
+
           } else {
             vscode.window.showInformationMessage("No .vscode folder found, creating .vscode folder");
             // create a vscode folder
@@ -61,7 +62,7 @@ function activate(context) {
           }
         }
       }
-      else{
+      else {
         vscode.window.showInformationMessage("No environment created, thanks for using autopyenv")
       }
     });
