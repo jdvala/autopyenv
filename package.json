@@ -14,6 +14,16 @@
   ],
   "main": "./extension.js",
   "contributes": {
+    "configuration": {
+      "title": "AutoPyEnv",
+      "properties": {
+        "autopyenv.configfolder": {
+          "type": "string",
+          "default": ".vscode",
+          "description": "Configfolder in which the environment will be stored in the project root."
+        }
+      }
+    },
     "commands": [
       {
         "command": "extension.autopyenv",
