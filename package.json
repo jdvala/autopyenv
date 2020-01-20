@@ -2,6 +2,7 @@
   "name": "autopyenv",
   "displayName": "Autopyenv",
   "description": "Enables autoload for python environments automatically",
+  "publisher": "Jay Vala and Lukas Bauer",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.41.0"
