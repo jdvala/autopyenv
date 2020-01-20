@@ -1,65 +1,28 @@
-# autopyenv README
+# autopyenv
 
-This is the README for your extension "autopyenv". After writing up a brief description, we recommend including the following sections.
+This extension lets you create and manage a virtual environment for your python project. Ideal for developers working in large teams who manages a lot of python packages.
+
+By default it utilizes pythons built in virtual environemt module so there is no extra dependencies to be installed. Support for `Anaconda` and other virtualization modules is planned in the next release.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+It works by checking if you have `.vscode` directory in your current working directory. If there is no `.vscode` directory, it will create that directory and create a virtual environment in that directory. However, you have the ability to customize this setting and add your own directory if you so desire.
 
-For example if there is an image subfolder under your extension project workspace:
+To activate `autopyenv`, you first need to be inside your desired directory where you would like `autopyenv` to create a virtual environment for you and then press `ctrl+shift+p` for linux and windows and `⇧⌘P, F1` on mac os to bring up command palette, then type `autopyenv` and hit enter to create a new environment in the current directory. 
 
-\!\[feature X\]\(images/feature-x.png\)
+![activate](vscode_1.gif)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+If you already have create an environment using `autopyenv` then you can follow the above command and it will ask you if you want to activate the environment present in your `.vscode` directory or other directory if you have selected your own directory from settings.
 
-## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+![activate](vscode_2.gif)
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
 This extension contributes the following settings:
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+* `autopyenv.configFolder`: sets new directory for environment
 
-## Known Issues
+## Requirements
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+This extension requires vscode enginee version `1.41.0` or higher
