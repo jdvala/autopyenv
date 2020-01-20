@@ -10,7 +10,7 @@
     "Other"
   ],
   "activationEvents": [
-    "workspaceContains:/."
+    "onCommand:extension.autopyenv"
   ],
   "main": "./extension.js",
   "contributes": {

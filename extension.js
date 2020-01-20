@@ -22,57 +22,63 @@ let configFolder = null;
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  configFolder = vscode.workspace.getConfiguration('autopyenv').get("configfolder");
+  
+  // only activate environment if user wants to
+  let disposible = vscode.commands.registerCommand('extension.autopyenv', function() {
+    // Use the console to output diagnostic information (console.log) and errors (console.error)
+    // This line of code will only be executed once when your extension is activated
+    configFolder = vscode.workspace.getConfiguration('autopyenv').get("configfolder");
+    
+    
+    if (vscode.workspace) {
+      exactPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+      folderName = exactPath.split(path.sep)[
+        exactPath.split(path.sep).length - 1
+      ];
 
-  if (vscode.workspace) {
-    exactPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    folderName = exactPath.split(path.sep)[
-      exactPath.split(path.sep).length - 1
-    ];
+      vscode.window.showInformationMessage(`Found Workspace ${folderName}`);
+    } else {
+      vscode.window.showErrorMessage("No Workspace found, no folder open");
+    }
 
-    vscode.window.showInformationMessage(`Found Workspace ${folderName}`);
-  } else {
-    vscode.window.showErrorMessage("No Workspace found, no folder open");
-  }
-
-  // if we found foldername then start using the shell commands
-  if (folderName) {
-    //check for environment inside configfolder folder
-    configFolderPath = path.join(exactPath, configFolder);
-    if (fs.existsSync(configFolderPath)) {
-      // check if environment is present
-      let existEnvPath = path.join(configFolderPath, `${folderName}`, "bin", "activate");
-      if (existEnvPath) {
-        // Just activate the environment
-        vscode.window.showInformationMessage("Environment already exist, Do you want to activate it?", ...["Yes", "No"]).then(selection => {
-          if (selection === "Yes") {
-            activateEnv()
-          }
-          else {
-            vscode.window.showInformationMessage(`Environment ${folderName} not activated`)
-          }
-        });
-
-      } else {
-        vscode.window.showInformationMessage(`${configFolder} folder exists but no environment, do you want to create environment in ${configFolder} folder?`, ...["Yes", "No"])
-          .then(selection => {
+    // if we found foldername then start using the shell commands
+    if (folderName) {
+      //check for environment inside configfolder folder
+      configFolderPath = path.join(exactPath, configFolder);
+      if (fs.existsSync(configFolderPath)) {
+        // check if environment is present
+        let existEnvPath = path.join(configFolderPath, `${folderName}`, "bin", "activate");
+        if (existEnvPath) {
+          // Just activate the environment
+          vscode.window.showInformationMessage("Environment already exist, Do you want to activate it?", ...["Yes", "No"]).then(selection => {
             if (selection === "Yes") {
-              // create a terminal with name as foldername+Environment
-              createEnvironment()
+              activateEnv()
+            }
+            else {
+              vscode.window.showInformationMessage(`Environment ${folderName} not activated`)
             }
           });
-      }
-    } else {
-      vscode.window.showInformationMessage(`No ${configFolder} folder found, creating ${configFolder} folder`);
-      // create a vscode folder
-      fs.mkdirSync(configFolderPath)
 
-      // create the environment
-      createEnvironment()
+        } else {
+          vscode.window.showInformationMessage(`${configFolder} folder exists but no environment, do you want to create environment in ${configFolder} folder?`, ...["Yes", "No"])
+            .then(selection => {
+              if (selection === "Yes") {
+                // create a terminal with name as foldername+Environment
+                createEnvironment()
+              }
+            });
+        }
+      } else {
+        vscode.window.showInformationMessage(`No ${configFolder} folder found, creating ${configFolder} folder`);
+        // create a vscode folder
+        fs.mkdirSync(configFolderPath)
+
+        // create the environment
+        createEnvironment()
+      }
     }
-  }
+  });
+  context.subscriptions.push(disposible)
 }
 
 exports.activate = activate;
