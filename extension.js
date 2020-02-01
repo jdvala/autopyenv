@@ -16,6 +16,7 @@ let exactPath = null;
 let defaultShell = null;
 let configFolderPath = null;
 let configFolder = null;
+let pythonVersion = null;
 
 
 /**
@@ -28,7 +29,6 @@ function activate(context) {
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     configFolder = vscode.workspace.getConfiguration('autopyenv').get("configfolder");
-    
     
     if (vscode.workspace) {
       exactPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
@@ -48,7 +48,7 @@ function activate(context) {
       if (fs.existsSync(configFolderPath)) {
         // check if environment is present
         let existEnvPath = path.join(configFolderPath, `${folderName}`, "bin", "activate");
-        if (existEnvPath) {
+        if (fs.existsSync(existEnvPath)) {
           // Just activate the environment
           vscode.window.showInformationMessage("Environment already exist, Do you want to activate it?", ...["Yes", "No"]).then(selection => {
             if (selection === "Yes") {
@@ -63,8 +63,30 @@ function activate(context) {
           vscode.window.showInformationMessage(`${configFolder} folder exists but no environment, do you want to create environment in ${configFolder} folder?`, ...["Yes", "No"])
             .then(selection => {
               if (selection === "Yes") {
-                // create a terminal with name as foldername+Environment
-                createEnvironment()
+                // Determine the python version number
+                let setupPyPath = path.join(exactPath, 'setup.py');
+                if (fs.existsSync(setupPyPath)){
+
+                  fs.readFile(setupPyPath, (err, data) =>{
+                    let text = data.toString();
+                    let version = /(python_requires="|python_requires=')(\>\=|\<\+|\=\=)(\d\.\d?\.?\d)/g;
+                    let match = version.exec(text);
+                    pythonVersion = match[3]
+                    if (pythonVersion){
+                      if (pythonVersion.length === 5){
+                        pythonVersion = pythonVersion.slice(0, pythonVersion.length-2);
+                      }
+                      createEnvironment(pythonVersion)
+                    }
+                    else if (!!pythonVersion) {
+                      pythonVersion = vscode.workspace.getConfiguration('autopyenv').get('pythonVersion');
+                      createEnvironment(pythonVersion)
+                    }
+                    else{
+                      vscode.window.showErrorMessage('Please select default python in the setttings section')
+                    }
+                  })
+                }
               }
             });
         }
@@ -72,11 +94,32 @@ function activate(context) {
         vscode.window.showInformationMessage(`No ${configFolder} folder found, creating ${configFolder} folder`);
         // create a vscode folder
         fs.mkdirSync(configFolderPath)
-
-        // create the environment
-        createEnvironment()
-      }
-    }
+        // Determine the python version number
+        let setupPyPath = path.join(exactPath, 'setup.py');
+        if (fs.existsSync(setupPyPath)){
+          fs.readFile(setupPyPath, (err, data) =>{
+            let text = data.toString();
+            let version = /(python_requires="|python_requires=')(\>\=|\<\+|\=\=)(\d\.\d?\.?\d)/g;
+            let match = version.exec(text);
+            pythonVersion = match[3]
+            if (pythonVersion){
+              if (pythonVersion.length === 5){
+                pythonVersion = pythonVersion.slice(0,pythonVersion.length-2);
+            
+              }
+              createEnvironment(pythonVersion)
+            }
+            else if (!!pythonVersion) {
+              pythonVersion = vscode.workspace.getConfiguration('autopyenv').get('pythonVersion');
+              createEnvironment(pythonVersion)
+            }
+            else{
+              vscode.window.showErrorMessage('Please select default python in the setttings section')
+            }
+          })
+        
+    }}
+  }
   });
   context.subscriptions.push(disposible)
 }
@@ -93,14 +136,14 @@ const activateEnv = () => {
 }
 
 // method to create and activate new environment
-const createEnvironment = () => {
+const createEnvironment = (versionInfo) => {
   defaultShell = vscode.window.createTerminal(
     `${folderName} Environment`
   );
   // send text to the terminal with the command to create the virtual environment
   let newEnvPath = path.join(`${configFolderPath}`, `${folderName}`)
-  defaultShell.sendText(`python3 -m venv ${newEnvPath}`);
-  vscode.window.showInformationMessage(`Created python3 virtual environment in ${configFolder} folder`);
+  defaultShell.sendText(`python${versionInfo} -m venv ${newEnvPath}`);
+  vscode.window.showInformationMessage(`Created python${versionInfo} virtual environment in ${configFolder} folder`);
 
   // create the activate path
   let activationPath = path.join(`${newEnvPath}`, "bin", "activate");
