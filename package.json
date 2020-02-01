@@ -1,6 +1,7 @@
 {
   "name": "autopyenv",
   "displayName": "Autopyenv",
+  "icon": "https://github.com/jdvala/autopyenv/blob/master/images/logo_transparent_128.png",
   "description": "Enables autoload for python environments automatically",
   "publisher": "Jay Vala and Lukas Bauer",
   "version": "0.0.1",
