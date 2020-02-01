@@ -1,7 +1,6 @@
 {
   "name": "autopyenv",
   "displayName": "Autopyenv",
-  "publisher":"jay vala lukas bauer",
   "description": "Enables autoload for python environments automatically",
   "publisher": "Jay Vala and Lukas Bauer",
   "version": "0.0.1",
