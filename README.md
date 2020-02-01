@@ -28,3 +28,8 @@ This extension contributes the following settings:
 ## Requirements
 
 This extension requires vscode enginee version `1.41.0` or higher
+
+
+## Authors
+@jdvala
+@luxterful
