@@ -3,7 +3,7 @@
   "displayName": "Autopyenv",
   "icon": "images/logo_transparent_128.png",
   "description": "Enables autoload for python environments automatically",
-  "publisher": "Jay",
+  "publisher": "jdvala",
   "version": "0.1.0",
   "engines": {
     "vscode": "^1.41.0"
