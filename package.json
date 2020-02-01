@@ -1,12 +1,16 @@
 {
   "name": "autopyenv",
   "displayName": "Autopyenv",
-  "icon": "https://github.com/jdvala/autopyenv/blob/master/images/logo_transparent_128.png",
+  "icon": "images/logo_transparent_128.png",
   "description": "Enables autoload for python environments automatically",
-  "publisher": "Jay Vala and Lukas Bauer",
-  "version": "0.0.1",
+  "publisher": "Jay",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.41.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jdvala/autopyenv"
   },
   "categories": [
     "Other"
@@ -24,7 +28,7 @@
           "default": ".vscode",
           "description": "Configfolder in which the environment will be stored in the project root."
         },
-        "autopyenv.pythonVersion":{
+        "autopyenv.pythonVersion": {
           "type": "string",
           "description": "Default Python version"
         }
